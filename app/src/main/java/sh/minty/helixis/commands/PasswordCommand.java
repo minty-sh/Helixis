@@ -8,12 +8,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
-// TODO: come up with better names for these variables
-record GenerationParams(int length, char separator, int separators) {}
+record GenerationParams(
+    int length, int numUppercase, int numLowercase, int numDigits, int numSpecial, String specialChars,
+    char separator, int separatorFrequency
+) {}
 
 @Command(name = "password", mixinStandardHelpOptions = true, description = "Generate X number of random passwords.")
 public class PasswordCommand implements Callable<Integer> {
@@ -26,6 +29,30 @@ public class PasswordCommand implements Callable<Integer> {
     @Option(names = {"-f", "--file"}, description = "write passwords to filename")
     private String filename;
 
+    @Option(names = {"-l", "--length"}, description = "Total length of the password (default: 18). This length excludes separators.")
+    private int length = 18;
+
+    @Option(names = {"-u", "--uppercase"}, description = "Number of uppercase letters (default: 1). If not specified, a random number of uppercase letters will be used to meet the total length requirement.")
+    private int numUppercase = 1;
+
+    @Option(names = {"-c", "--lowercase"}, description = "Number of lowercase letters (default: calculated). If not specified, a random number of lowercase letters will be used to meet the total length requirement.")
+    private int numLowercase = -1; // -1 indicates calculated based on total length and other character types
+
+    @Option(names = {"-d", "--digits"}, description = "Number of digits (default: 1). If not specified, a random number of digits will be used to meet the total length requirement.")
+    private int numDigits = 1;
+
+    @Option(names = {"-s", "--special"}, description = "Number of special characters (default: 0). If not specified, a random number of special characters will be used to meet the total length requirement.")
+    private int numSpecial = 0;
+
+    @Option(names = {"--special-chars"}, description = "Allowed special characters (default: !@#$%^&*()-_=+[{]}\\|;:'\",<.>/?).")
+    private String specialChars = "!@#$%^&*()-_=+[{]}\\|;:'\",<.>/?";
+
+    @Option(names = {"--separator"}, description = "Separator character (default: -).")
+    private char separator = '-';
+
+    @Option(names = {"--separator-frequency"}, description = "Frequency of separator (e.g., 6 for XXXXXX-XXXXXX-XXXXXX) (default: 6). Set to 0 for no separators.")
+    private int separatorFrequency = 6;
+
     @Override
     public Integer call() {
         if (numPasswords <= 0) {
@@ -33,9 +60,33 @@ public class PasswordCommand implements Callable<Integer> {
             return 1;
         }
 
+        // calculate numLowercase if not explicitly set
+        if (numLowercase == -1) {
+            numLowercase = length - numUppercase - numDigits - numSpecial;
+            if (numLowercase < 0) {
+                System.err.println("Error: Total length is less than the sum of required uppercase, digits, and special characters.");
+                return 1;
+            }
+        }
+
+        if (numUppercase < 0 || numDigits < 0 || numSpecial < 0 || numLowercase < 0) {
+            System.err.println("Error: Number of character types cannot be negative.");
+            return 1;
+        }
+
+        if (numUppercase + numDigits + numSpecial + numLowercase != length) {
+            System.err.println("Error: Sum of character types does not match the total length.");
+            return 1;
+        }
+
+        var params = new GenerationParams(
+            length, numUppercase, numLowercase, numDigits, numSpecial,
+            specialChars, separator, separatorFrequency
+        );
+
         List<String> passwords = new ArrayList<>();
         for (int i = 0; i < numPasswords; i++) {
-            passwords.add(generatePassword());
+            passwords.add(generatePassword(params));
         }
 
         if (filename != null) {
@@ -62,21 +113,45 @@ public class PasswordCommand implements Callable<Integer> {
         return 0;
     }
 
-    private String generatePassword(String format, GenerationParams params) {
-        final String lowercaseLetters = "abcdefghijklmnopqrstuvwxyz";
-        
-        char uppercaseLetter = Character.toUpperCase(lowercaseLetters.charAt(random.nextInt(lowercaseLetters.length())));
-        char number = (char) ('0' + random.nextInt(10));
+    private String generatePassword(GenerationParams params) {
+        final String lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
+        final String uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        final String digitChars = "0123456789";
 
-        var letters = new StringBuilder();
-        for (int i = 0; i < 16; i++) {
-            letters.append(lowercaseLetters.charAt(random.nextInt(lowercaseLetters.length())));
+        List<Character> passwordChars = new ArrayList<>();
+
+        // add required uppercase letters
+        for (int i = 0; i < params.numUppercase(); i++) {
+            passwordChars.add(uppercaseChars.charAt(random.nextInt(uppercaseChars.length())));
         }
 
-        letters.insert(6, uppercaseLetter);
-        letters.insert(12, number);
+        // add required digits
+        for (int i = 0; i < params.numDigits(); i++) {
+            passwordChars.add(digitChars.charAt(random.nextInt(digitChars.length())));
+        }
 
-        return letters.substring(0, 6) + "-" + letters.substring(6, 12) + "-" + letters.substring(12, 18);
+        // add required special characters
+        for (int i = 0; i < params.numSpecial(); i++) {
+            passwordChars.add(params.specialChars().charAt(random.nextInt(params.specialChars().length())));
+        }
+
+        // fill the rest with lowercase letters
+        for (int i = 0; i < params.numLowercase(); i++) {
+            passwordChars.add(lowercaseChars.charAt(random.nextInt(lowercaseChars.length())));
+        }
+
+        Collections.shuffle(passwordChars, random);
+
+        // build the password string
+        var passwordBuilder = new StringBuilder();
+        for (int i = 0; i < passwordChars.size(); i++) {
+            passwordBuilder.append(passwordChars.get(i));
+            if (params.separatorFrequency() > 0 && (i + 1) % params.separatorFrequency() == 0 && (i + 1) < params.length()) {
+                passwordBuilder.append(params.separator());
+            }
+        }
+
+        return passwordBuilder.toString();
     }
 
     private boolean isValidFilename(String filename) {
