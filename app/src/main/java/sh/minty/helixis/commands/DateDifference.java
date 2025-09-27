@@ -11,7 +11,7 @@ import java.util.concurrent.Callable;
 
 @Command(name = "difference", mixinStandardHelpOptions = true, description = "Calculates the difference between two dates.")
 public class DateDifference implements Callable<Integer> {
-    // TODO: add `date`-like pattern customization
+    // TODO: map GNU `date` syntax here
     @Parameters(index = "0", description = "The first (older) date in 'yyyy-MM-dd HH:mm:ss' format.")
     private String firstDateStr;
 
@@ -23,15 +23,15 @@ public class DateDifference implements Callable<Integer> {
     @Override
     public Integer call() {
         try {
-            LocalDateTime firstDate = LocalDateTime.parse(firstDateStr, FORMATTER);
-            LocalDateTime lastDate = LocalDateTime.parse(lastDateStr, FORMATTER);
+            var firstDate = LocalDateTime.parse(firstDateStr, FORMATTER);
+            var lastDate = LocalDateTime.parse(lastDateStr, FORMATTER);
 
             if (firstDate.isAfter(lastDate)) {
                 System.err.println("Error: The first date must be before the second date.");
                 return 1;
             }
 
-            Duration duration = Duration.between(firstDate, lastDate);
+            var duration = Duration.between(firstDate, lastDate);
 
             long days = duration.toDays();
             long years = days / 365;
