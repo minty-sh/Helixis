@@ -14,7 +14,6 @@ import java.util.concurrent.Callable;
 
 @Command(name = "hash", mixinStandardHelpOptions = true, description = "Calculates the hash of a string or a file.")
 public class HashCommand implements Callable<Integer> {
-
     @Parameters(index = "0", description = "The input string or file path to hash.")
     private String input;
 
