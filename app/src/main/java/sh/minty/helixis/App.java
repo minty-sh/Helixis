@@ -6,6 +6,7 @@ import sh.minty.helixis.commands.ColorCommand;
 import sh.minty.helixis.commands.CryptCommand;
 import sh.minty.helixis.commands.DateCommand;
 import sh.minty.helixis.commands.PasswordCommand;
+import sh.minty.helixis.commands.UuidCommand;
 
 @Command(
     name = "helixis",
@@ -16,7 +17,8 @@ import sh.minty.helixis.commands.PasswordCommand;
         PasswordCommand.class,
         ColorCommand.class,
         CryptCommand.class,
-        DateCommand.class
+        DateCommand.class,
+        UuidCommand.class
     }
 )
 public class App {
