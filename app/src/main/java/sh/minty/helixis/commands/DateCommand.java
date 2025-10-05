@@ -40,7 +40,7 @@ public class DateCommand {
         private String zoneId;
 
         @Override
-        public Integer call() throws Exception {
+        public Integer call() {
             LocalDateTime now = LocalDateTime.now();
             ZoneId targetZone = (zoneId != null) ? ZoneId.of(zoneId) : ZoneId.systemDefault();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format).withZone(targetZone);
@@ -64,7 +64,7 @@ public class DateCommand {
         private String zoneId;
 
         @Override
-        public Integer call() throws Exception {
+        public Integer call() {
             try {
                 ZoneId targetZone = (zoneId != null) ? ZoneId.of(zoneId) : ZoneId.systemDefault();
                 DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern(inputFormat).withZone(targetZone);
@@ -101,7 +101,7 @@ public class DateCommand {
         private String zoneId;
 
         @Override
-        public Integer call() throws Exception {
+        public Integer call() {
             try {
                 var targetZone = (zoneId != null) ? ZoneId.of(zoneId) : ZoneId.systemDefault();
                 var formatter = DateTimeFormatter.ofPattern(inputFormat).withZone(targetZone);
@@ -146,7 +146,7 @@ public class DateCommand {
         private String outputFormat = "yyyy-MM-dd";
 
         @Override
-        public Integer call() throws Exception {
+        public Integer call() {
             try {
                 var inputFormatter = DateTimeFormatter.ofPattern(inputFormat);
                 var dateTime = LocalDateTime.parse(dateString, inputFormatter);
@@ -178,7 +178,7 @@ public class DateCommand {
     )
     static class TimestampCommand implements Callable<Integer> {
         @Override
-        public Integer call() throws Exception {
+        public Integer call() {
             // This command acts as a container for sub-subcommands
             return 0;
         }
@@ -206,7 +206,7 @@ public class DateCommand {
         private String zoneId;
 
         @Override
-        public Integer call() throws Exception {
+        public Integer call() {
             try {
                 var targetZone = (zoneId != null) ? ZoneId.of(zoneId) : ZoneId.systemDefault();
                 var formatter = DateTimeFormatter.ofPattern(inputFormat).withZone(targetZone);
@@ -240,7 +240,7 @@ public class DateCommand {
         private String zoneId;
 
         @Override
-        public Integer call() throws Exception {
+        public Integer call() {
             try {
                 var targetZone = (zoneId != null) ? ZoneId.of(zoneId) : ZoneId.systemDefault();
                 var formatter = DateTimeFormatter.ofPattern(outputFormat).withZone(targetZone);
@@ -276,7 +276,7 @@ public class DateCommand {
         private String inputFormat = "yyyy-MM-dd HH:mm:ss";
 
         @Override
-        public Integer call() throws Exception {
+        public Integer call() {
             try {
                 var inputFormatter = DateTimeFormatter.ofPattern(inputFormat);
                 var dateTime = LocalDateTime.parse(dateString, inputFormatter);
@@ -331,7 +331,7 @@ public class DateCommand {
         private int year;
 
         @Override
-        public Integer call() throws Exception {
+        public Integer call() {
             System.out.println(Year.of(year).isLeap());
             return 0;
         }
@@ -365,7 +365,7 @@ public class DateCommand {
         private String outputFormat = "yyyy-MM-dd HH:mm:ss";
 
         @Override
-        public Integer call() throws Exception {
+        public Integer call() {
             try {
                 var inputFormatter = DateTimeFormatter.ofPattern(inputFormat);
                 var localDateTime = LocalDateTime.parse(dateString, inputFormatter);
@@ -396,7 +396,7 @@ public class DateCommand {
         private int month;
 
         @Override
-        public Integer call() throws Exception {
+        public Integer call() {
             try {
                 var firstDayOfMonth = LocalDate.of(year, month, 1);
                 int daysInMonth = firstDayOfMonth.lengthOfMonth();
@@ -440,7 +440,7 @@ public class DateCommand {
         private String outputFormat = "yyyy-MM-dd";
 
         @Override
-        public Integer call() throws Exception {
+        public Integer call() {
             try {
                 var minDate = LocalDate.of(1900, 1, 1); // Default min date
                 var maxDate = LocalDate.of(2100, 12, 31); // Default max date
