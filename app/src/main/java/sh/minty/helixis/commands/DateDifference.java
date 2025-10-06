@@ -5,13 +5,14 @@ import picocli.CommandLine.Parameters;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.concurrent.Callable;
 
 @Command(name = "difference", mixinStandardHelpOptions = true, description = "Calculates the difference between two dates.")
 public class DateDifference implements Callable<Integer> {
-    // TODO: map GNU `date` syntax here
+
     @Parameters(index = "0", description = "The first (older) date in 'yyyy-MM-dd HH:mm:ss' format.")
     private String firstDateStr;
 
@@ -33,13 +34,11 @@ public class DateDifference implements Callable<Integer> {
 
             var duration = Duration.between(firstDate, lastDate);
 
-            long days = duration.toDays();
-            long years = days / 365;
-            days %= 365;
-            long months = days / 30; // Approximation
-            days %= 30;
-            long weeks = days / 7;
-            days %= 7;
+            var period = Period.between(firstDate.toLocalDate(), lastDate.toLocalDate());
+
+            long years = period.getYears();
+            long months = period.getMonths();
+            long days = period.getDays();
 
             long hours = duration.toHours() % 24;
             long minutes = duration.toMinutes() % 60;
@@ -47,10 +46,9 @@ public class DateDifference implements Callable<Integer> {
 
             System.out.printf("Time from %s to %s:%n", firstDate.format(FORMATTER), lastDate.format(FORMATTER));
             
-            StringBuilder result = new StringBuilder();
+            var result = new StringBuilder();
             appendUnit(result, years, "year");
             appendUnit(result, months, "month");
-            appendUnit(result, weeks, "week");
             appendUnit(result, days, "day");
             appendUnit(result, hours, "hour");
             appendUnit(result, minutes, "minute");

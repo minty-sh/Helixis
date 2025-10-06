@@ -41,9 +41,9 @@ public class DateCommand {
 
         @Override
         public Integer call() {
-            LocalDateTime now = LocalDateTime.now();
-            ZoneId targetZone = (zoneId != null) ? ZoneId.of(zoneId) : ZoneId.systemDefault();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format).withZone(targetZone);
+            var now = LocalDateTime.now();
+            var targetZone = (zoneId != null) ? ZoneId.of(zoneId) : ZoneId.systemDefault();
+            var formatter = DateTimeFormatter.ofPattern(format).withZone(targetZone);
             System.out.println(now.atZone(ZoneId.systemDefault()).withZoneSameInstant(targetZone).format(formatter));
             return 0;
         }
@@ -66,11 +66,12 @@ public class DateCommand {
         @Override
         public Integer call() {
             try {
-                ZoneId targetZone = (zoneId != null) ? ZoneId.of(zoneId) : ZoneId.systemDefault();
-                DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern(inputFormat).withZone(targetZone);
-                DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern(outputFormat).withZone(targetZone);
+                var targetZone = (zoneId != null) ? ZoneId.of(zoneId) : ZoneId.systemDefault();
+                var inputFormatter = DateTimeFormatter.ofPattern(inputFormat).withZone(targetZone);
+                var outputFormatter = DateTimeFormatter.ofPattern(outputFormat).withZone(targetZone);
 
-                LocalDateTime dateTime = LocalDateTime.parse(dateString, inputFormatter);
+                var dateTime = LocalDateTime.parse(dateString, inputFormatter);
+
                 System.out.println(dateTime.atZone(targetZone).format(outputFormatter));
             } catch (DateTimeParseException e) {
                 System.err.println("Error: Could not parse date string with the given input format. " + e.getMessage());
@@ -282,33 +283,18 @@ public class DateCommand {
                 var dateTime = LocalDateTime.parse(dateString, inputFormatter);
 
                 switch (component) {
-                    case DAY_OF_WEEK:
-                        System.out.println(dateTime.getDayOfWeek().name());
-                        break;
-                    case DAY_OF_MONTH:
-                        System.out.println(dateTime.getDayOfMonth());
-                        break;
-                    case DAY_OF_YEAR:
-                        System.out.println(dateTime.getDayOfYear());
-                        break;
-                    case YEAR:
-                        System.out.println(dateTime.getYear());
-                        break;
-                    case MONTH_OF_YEAR:
-                        System.out.println(dateTime.getMonth().name());
-                        break;
-                    case HOUR_OF_DAY:
-                        System.out.println(dateTime.getHour());
-                        break;
-                    case MINUTE_OF_HOUR:
-                        System.out.println(dateTime.getMinute());
-                        break;
-                    case SECOND_OF_MINUTE:
-                        System.out.println(dateTime.getSecond());
-                        break;
-                    default:
+                    case DAY_OF_WEEK -> System.out.println(dateTime.getDayOfWeek().name());
+                    case DAY_OF_MONTH -> System.out.println(dateTime.getDayOfMonth());
+                    case DAY_OF_YEAR -> System.out.println(dateTime.getDayOfYear());
+                    case YEAR -> System.out.println(dateTime.getYear());
+                    case MONTH_OF_YEAR -> System.out.println(dateTime.getMonth().name());
+                    case HOUR_OF_DAY -> System.out.println(dateTime.getHour());
+                    case MINUTE_OF_HOUR -> System.out.println(dateTime.getMinute());
+                    case SECOND_OF_MINUTE -> System.out.println(dateTime.getSecond());
+                    default -> {
                         System.err.println("Error: Unsupported date component for extraction: " + component);
                         return 1;
+                    }
                 }
             } catch (DateTimeParseException e) {
                 System.err.println("Error: Could not parse date string with the given input format. " + e.getMessage());
@@ -442,8 +428,8 @@ public class DateCommand {
         @Override
         public Integer call() {
             try {
-                var minDate = LocalDate.of(1900, 1, 1); // Default min date
-                var maxDate = LocalDate.of(2100, 12, 31); // Default max date
+                var minDate = LocalDate.of(1900, 1, 1); // default min date
+                var maxDate = LocalDate.of(2100, 12, 31); // default max date
 
                 if (afterDateString != null) {
                     minDate = LocalDate.parse(afterDateString, DateTimeFormatter.ISO_LOCAL_DATE);
