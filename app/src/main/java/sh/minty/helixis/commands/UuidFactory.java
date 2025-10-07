@@ -8,7 +8,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.Enumeration;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -179,6 +178,22 @@ public final class UuidFactory {
         return value;
     }
 
+    private static boolean isValidNetworkInterface(NetworkInterface ni) throws SocketException {
+        return ni.isUp() && !ni.isLoopback() && !ni.isVirtual();
+    }
+
+    private static long getMacAddressAsLong(NetworkInterface ni) throws SocketException {
+        byte[] mac = ni.getHardwareAddress();
+        if (mac != null && mac.length == 6) {
+            long node = 0;
+            for (int i = 0; i < 6; i++) {
+                node = (node << 8) | (mac[i] & 0xFF);
+            }
+            return node;
+        }
+        return -1; // Indicate that no valid MAC address was found
+    }
+
     // Try to obtain a MAC address; if none, generate a random 48-bit number and set multicast bit.
     private static long createNodeIdentifier() {
         try {
@@ -186,20 +201,15 @@ public final class UuidFactory {
             while (ifs.hasMoreElements()) {
                 NetworkInterface ni = ifs.nextElement();
                 try {
-                    // TODO: make this look nicer
-                    if (ni.isUp() && !ni.isLoopback() && !ni.isVirtual()) {
-                        byte[] mac = ni.getHardwareAddress();
-                        if (mac != null && mac.length == 6) {
-                            long node = 0;
-                            for (int i = 0; i < 6; i++) {
-                                node = (node << 8) | (mac[i] & 0xFF);
-                            }
+                    if (isValidNetworkInterface(ni)) {
+                        long node = getMacAddressAsLong(ni);
+                        if (node != -1) { // -1 indicates an invalid or unavailable MAC address
                             return node;
                         }
                     }
-                } catch (SocketException _) {}
+                } catch (SocketException e) { }
             }
-        } catch (SocketException _) {}
+        } catch (SocketException e) { }
 
         // fallback: random 48-bit with multicast bit set (per RFC)
         long node = ThreadLocalRandom.current().nextLong() & 0x0000FFFFFFFFFFFFL;

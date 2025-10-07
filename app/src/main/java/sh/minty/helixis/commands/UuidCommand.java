@@ -1,5 +1,6 @@
 package sh.minty.helixis.commands;
 
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -22,25 +23,33 @@ public class UuidCommand implements Callable<Integer> {
     @Option(names = {"-n", "--number"}, description = "generate x uuids (default: 1)")
     private int amount = 1;
 
-    @Option(names = {"--version"}, description = "uuid version (default: 4)")
+    @Option(names = {"-V", "--uuid-version"}, description = "uuid version (default: 4)")
     private int version = 4;
 
     @Option(names = {"-s", "--secure"}, description = "use secure random (default: false)")
     private boolean useSecureRandom = false;
 
-    // TODO: make these two options depend on version == 2
-    @Option(names = {"-l", "--local"}, description = "local identifier for UUIDv2 (default: none)")
-    private int localIdentifier = random.nextInt();
+    @ArgGroup(exclusive = false, multiplicity = "0..1")
+    Version2Options version2Options;
 
-    @Option(names = {"-d", "--domain"}, description = "local domain for UUIDv2 (default: none)")
-    private int localDomain = random.nextInt(0, 256);
+    static class Version2Options {
+        @Option(names = {"-l", "--local"}, description = "local identifier for UUIDv2 (default: none)", required = true)
+        int localIdentifier;
 
-    // TODO: make these two options depend on version == 3/5
-    @Option(names = {"-n", "--namespace"}, description = "namespace for UUIDv3/v5")
-    private UUID namespace;
+        @Option(names = {"-d", "--domain"}, description = "local domain for UUIDv2 (0-255). Typical DCE domains: 0=user,1=group,2=org", required = true)
+        int localDomain;
+    }
 
-    @Option(names = {"-n", "--name"}, description = "name for UUIDv3/v5")
-    private String name;
+    @ArgGroup(exclusive = false, multiplicity = "0..1")
+    Version3Or5Options version3Or5Options;
+
+    static class Version3Or5Options {
+        @Option(names = {"-ns", "--namespace"}, description = "namespace for UUIDv3/v5", required = true)
+        UUID namespace;
+
+        @Option(names = {"-N", "--name"}, description = "name for UUIDv3/v5", required = true)
+        String name;
+    }
 
     @Override
     public Integer call() {
@@ -53,19 +62,49 @@ public class UuidCommand implements Callable<Integer> {
         var data = new byte[16];
         switch (version) {
             case 1 -> uuid = UuidFactory.uuidV1();
-            case 2 -> uuid = UuidFactory.uuidV2(localIdentifier, localDomain);
+            case 2 -> {
+                if (version2Options == null) {
+                    LOGGER.log(Level.SEVERE, "For UUIDv2, --local and --domain are required.");
+                    return 1;
+                }
+                uuid = UuidFactory.uuidV2(version2Options.localIdentifier, version2Options.localDomain);
+            }
             case 3, 5 -> {
+                if (version3Or5Options == null || version3Or5Options.namespace == null || version3Or5Options.name == null) {
+                    LOGGER.log(Level.SEVERE, "For UUIDv" + version + ", --namespace and --name are required.");
+                    return 1;
+                }
                 // choose function by mapping: compute index 0 for v3, 1 for v5 without branching
                 // version 3 -> 0, version 5 -> 1
                 int idx = (version - 3) / 2;
                 var fn = (idx == 0) ? UUID_V3_FN : UUID_V5_FN;
-                uuid = fn.apply(namespace, name);
+                uuid = fn.apply(version3Or5Options.namespace, version3Or5Options.name);
             }
             case 4 -> {
                 random.nextBytes(data);
-                uuid = UUID.nameUUIDFromBytes(data);
+
+                // set version 4 bits
+                data[6] &= 0x0f;  // clear version
+                data[6] |= 0x40;  // set version 4
+                data[8] &= 0x3f;  // clear variant
+                data[8] |= 0x80;  // set IETF variant
+
+                long mostSigBits = 0;
+                for (int i = 0; i < 8; i++) {
+                    mostSigBits = (mostSigBits << 8) | (data[i] & 0xff);
+                }
+
+                long leastSigBits = 0;
+                for (int i = 8; i < 16; i++) {
+                    leastSigBits = (leastSigBits << 8) | (data[i] & 0xff);
+                }
+
+                uuid = new UUID(mostSigBits, leastSigBits);
             }
-            default -> uuid = UUID.randomUUID();
+            default -> {
+                LOGGER.log(Level.SEVERE, "Invalid UUID version: " + version);
+                return 1;
+            }
         }
 
         for (int i = 0; i < amount; i++) {
