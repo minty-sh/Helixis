@@ -2,6 +2,7 @@ package sh.minty.helixis;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.HelpCommand;
 import sh.minty.helixis.commands.ColorCommand;
 import sh.minty.helixis.commands.CryptCommand;
 import sh.minty.helixis.commands.DateCommand;
@@ -14,6 +15,7 @@ import sh.minty.helixis.commands.UuidCommand;
     version = "0.0.1",
     description = "A collection of command-line tools.",
     subcommands = {
+        HelpCommand.class,
         PasswordCommand.class,
         ColorCommand.class,
         CryptCommand.class,
