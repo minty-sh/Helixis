@@ -39,12 +39,26 @@ public class DateCommand {
         @Option(names = {"-z", "--zone"}, description = "Specify time zone (e.g., 'America/New_York'). Defaults to system default.")
         private String zoneId;
 
+        @Option(names = {"--gnu-format"}, description = "Treat output format (-f) as GNU date format.")
+        private boolean gnuFormat;
+
         @Override
         public Integer call() {
             var now = LocalDateTime.now();
             var targetZone = (zoneId != null) ? ZoneId.of(zoneId) : ZoneId.systemDefault();
-            var formatter = DateTimeFormatter.ofPattern(format).withZone(targetZone);
-            System.out.println(now.atZone(ZoneId.systemDefault()).withZoneSameInstant(targetZone).format(formatter));
+
+            String finalFormat = format;
+            if (gnuFormat) {
+                finalFormat = convertGnuFormatToJava(format);
+            }
+
+            // Special handling for epoch seconds (%s)
+            if (finalFormat.contains("epoch_seconds")) {
+                System.out.println(now.atZone(ZoneId.systemDefault()).toEpochSecond());
+            } else {
+                var formatter = DateTimeFormatter.ofPattern(finalFormat).withZone(targetZone);
+                System.out.println(now.atZone(ZoneId.systemDefault()).withZoneSameInstant(targetZone).format(formatter));
+            }
             return 0;
         }
     }
@@ -63,16 +77,38 @@ public class DateCommand {
         @Option(names = {"-z", "--zone"}, description = "Specify time zone for parsing and formatting (e.g., 'America/New_York'). Defaults to system default.")
         private String zoneId;
 
+        @Option(names = {"--gnu-input-format"}, description = "Treat input format (-i) as GNU date format.")
+        private boolean gnuInputFormat;
+
+        @Option(names = {"--gnu-output-format"}, description = "Treat output format (-o) as GNU date format.")
+        private boolean gnuOutputFormat;
+
         @Override
         public Integer call() {
             try {
                 var targetZone = (zoneId != null) ? ZoneId.of(zoneId) : ZoneId.systemDefault();
-                var inputFormatter = DateTimeFormatter.ofPattern(inputFormat).withZone(targetZone);
-                var outputFormatter = DateTimeFormatter.ofPattern(outputFormat).withZone(targetZone);
+
+                String finalInputFormat = inputFormat;
+                if (gnuInputFormat) {
+                    finalInputFormat = convertGnuFormatToJava(inputFormat);
+                }
+
+                String finalOutputFormat = outputFormat;
+                if (gnuOutputFormat) {
+                    finalOutputFormat = convertGnuFormatToJava(outputFormat);
+                }
+
+                var inputFormatter = DateTimeFormatter.ofPattern(finalInputFormat).withZone(targetZone);
+                var outputFormatter = DateTimeFormatter.ofPattern(finalOutputFormat).withZone(targetZone);
 
                 var dateTime = LocalDateTime.parse(dateString, inputFormatter);
 
-                System.out.println(dateTime.atZone(targetZone).format(outputFormatter));
+                // Special handling for epoch seconds (%s) in output
+                if (finalOutputFormat.contains("epoch_seconds")) {
+                    System.out.println(dateTime.atZone(targetZone).toEpochSecond());
+                } else {
+                    System.out.println(dateTime.atZone(targetZone).format(outputFormatter));
+                }
             } catch (DateTimeParseException e) {
                 System.err.println("Error: Could not parse date string with the given input format. " + e.getMessage());
                 return 1;
@@ -101,12 +137,29 @@ public class DateCommand {
         @Option(names = {"-z", "--zone"}, description = "Specify time zone for parsing and formatting (e.g., 'America/New_York'). Defaults to system default.")
         private String zoneId;
 
+        @Option(names = {"--gnu-input-format"}, description = "Treat input format (-i) as GNU date format.")
+        private boolean gnuInputFormat;
+
+        @Option(names = {"--gnu-output-format"}, description = "Treat output format (-o) as GNU date format.")
+        private boolean gnuOutputFormat;
+
         @Override
         public Integer call() {
             try {
                 var targetZone = (zoneId != null) ? ZoneId.of(zoneId) : ZoneId.systemDefault();
-                var formatter = DateTimeFormatter.ofPattern(inputFormat).withZone(targetZone);
-                var dateTime = LocalDateTime.parse(dateString, formatter);
+
+                String finalInputFormat = inputFormat;
+                if (gnuInputFormat) {
+                    finalInputFormat = convertGnuFormatToJava(inputFormat);
+                }
+
+                String finalOutputFormat = outputFormat;
+                if (gnuOutputFormat) {
+                    finalOutputFormat = convertGnuFormatToJava(outputFormat);
+                }
+
+                var inputFormatter = DateTimeFormatter.ofPattern(finalInputFormat).withZone(targetZone);
+                var dateTime = LocalDateTime.parse(dateString, inputFormatter);
 
                 LocalDateTime resultDateTime;
                 if (amount >= 0) {
@@ -115,8 +168,13 @@ public class DateCommand {
                     resultDateTime = dateTime.minus(Math.abs(amount), unit);
                 }
 
-                var outputFormatter = DateTimeFormatter.ofPattern(outputFormat).withZone(targetZone);
-                System.out.println(resultDateTime.atZone(targetZone).format(outputFormatter));
+                // Special handling for epoch seconds (%s) in output
+                if (finalOutputFormat.contains("epoch_seconds")) {
+                    System.out.println(resultDateTime.atZone(targetZone).toEpochSecond());
+                } else {
+                    var outputFormatter = DateTimeFormatter.ofPattern(finalOutputFormat).withZone(targetZone);
+                    System.out.println(resultDateTime.atZone(targetZone).format(outputFormatter));
+                }
             } catch (DateTimeParseException e) {
                 System.err.println("Error: Could not parse date string with the given input format. " + e.getMessage());
                 return 1;
@@ -206,11 +264,20 @@ public class DateCommand {
         )
         private String zoneId;
 
+        @Option(names = {"--gnu-input-format"}, description = "Treat input format (-i) as GNU date format.")
+        private boolean gnuInputFormat;
+
         @Override
         public Integer call() {
             try {
                 var targetZone = (zoneId != null) ? ZoneId.of(zoneId) : ZoneId.systemDefault();
-                var formatter = DateTimeFormatter.ofPattern(inputFormat).withZone(targetZone);
+
+                String finalInputFormat = inputFormat;
+                if (gnuInputFormat) {
+                    finalInputFormat = convertGnuFormatToJava(inputFormat);
+                }
+
+                var formatter = DateTimeFormatter.ofPattern(finalInputFormat).withZone(targetZone);
                 var dateTime = LocalDateTime.parse(dateString, formatter);
                 var timestamp = dateTime.atZone(targetZone).toEpochSecond();
                 System.out.println(timestamp);
@@ -240,13 +307,27 @@ public class DateCommand {
         @Option(names = {"-z", "--zone"}, description = "Specify time zone for formatting (e.g., 'America/New_York'). Defaults to system default.")
         private String zoneId;
 
+        @Option(names = {"--gnu-format"}, description = "Treat output format (-f) as GNU date format.")
+        private boolean gnuFormat;
+
         @Override
         public Integer call() {
             try {
                 var targetZone = (zoneId != null) ? ZoneId.of(zoneId) : ZoneId.systemDefault();
-                var formatter = DateTimeFormatter.ofPattern(outputFormat).withZone(targetZone);
-                var dateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(timestamp), targetZone);
-                System.out.println(dateTime.atZone(targetZone).format(formatter));
+
+                String finalOutputFormat = outputFormat;
+                if (gnuFormat) {
+                    finalOutputFormat = convertGnuFormatToJava(outputFormat);
+                }
+
+                // Special handling for epoch seconds (%s)
+                if (finalOutputFormat.contains("epoch_seconds")) {
+                    System.out.println(timestamp);
+                } else {
+                    var formatter = DateTimeFormatter.ofPattern(finalOutputFormat).withZone(targetZone);
+                    var dateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(timestamp), targetZone);
+                    System.out.println(dateTime.atZone(targetZone).format(formatter));
+                }
             } catch (Exception e) {
                 System.err.println("Error: " + e.getMessage());
                 return 1;
@@ -350,16 +431,37 @@ public class DateCommand {
         )
         private String outputFormat = "yyyy-MM-dd HH:mm:ss";
 
+        @Option(names = {"--gnu-input-format"}, description = "Treat input format (-i) as GNU date format.")
+        private boolean gnuInputFormat;
+
+        @Option(names = {"--gnu-output-format"}, description = "Treat output format (-o) as GNU date format.")
+        private boolean gnuOutputFormat;
+
         @Override
         public Integer call() {
             try {
-                var inputFormatter = DateTimeFormatter.ofPattern(inputFormat);
+                String finalInputFormat = inputFormat;
+                if (gnuInputFormat) {
+                    finalInputFormat = convertGnuFormatToJava(inputFormat);
+                }
+
+                String finalOutputFormat = outputFormat;
+                if (gnuOutputFormat) {
+                    finalOutputFormat = convertGnuFormatToJava(outputFormat);
+                }
+
+                var inputFormatter = DateTimeFormatter.ofPattern(finalInputFormat);
                 var localDateTime = LocalDateTime.parse(dateString, inputFormatter);
                 var sourceZonedDateTime = localDateTime.atZone(ZoneId.of(sourceZoneId));
                 var targetZonedDateTime = sourceZonedDateTime.withZoneSameInstant(ZoneId.of(targetZoneId));
 
-                var outputFormatter = DateTimeFormatter.ofPattern(outputFormat).withZone(ZoneId.of(targetZoneId));
-                System.out.println(targetZonedDateTime.format(outputFormatter));
+                // Special handling for epoch seconds (%s) in output
+                if (finalOutputFormat.contains("epoch_seconds")) {
+                    System.out.println(targetZonedDateTime.toEpochSecond());
+                } else {
+                    var outputFormatter = DateTimeFormatter.ofPattern(finalOutputFormat).withZone(ZoneId.of(targetZoneId));
+                    System.out.println(targetZonedDateTime.format(outputFormatter));
+                }
 
             } catch (DateTimeParseException e) {
                 System.err.println("Error: Could not parse date string with the given input format or zone. " + e.getMessage());
@@ -414,6 +516,55 @@ public class DateCommand {
         }
     }
 
+    private static String convertGnuFormatToJava(String gnuFormat) {
+        return gnuFormat
+            .replace("%a", "E")
+            .replace("%A", "EEEE")
+            .replace("%b", "MMM")
+            .replace("%B", "MMMM")
+            .replace("%c", "E MMM d HH:mm:ss yyyy")
+            .replace("%C", "yy") // Century, last two digits
+            .replace("%d", "dd")
+            .replace("%D", "MM/dd/yy")
+            .replace("%e", "d")
+            .replace("%F", "yyyy-MM-dd")
+            .replace("%g", "yy")
+            .replace("%G", "YYYY")
+            .replace("%h", "MMM")
+            .replace("%H", "HH")
+            .replace("%I", "hh")
+            .replace("%j", "D")
+            .replace("%k", "H")
+            .replace("%l", "h")
+            .replace("%m", "MM")
+            .replace("%M", "mm")
+            .replace("%n", "\n")
+            .replace("%N", "n")
+            .replace("%p", "a")
+            .replace("%P", "a") // lower case am/pm
+            .replace("%q", "Q")
+            .replace("%r", "hh:mm:ss a")
+            .replace("%R", "HH:mm")
+            .replace("%s", "epoch_seconds") // Special handling
+            .replace("%S", "ss")
+            .replace("%t", "\t")
+            .replace("%T", "HH:mm:ss")
+            .replace("%u", "e")
+            .replace("%U", "ww")
+            .replace("%V", "WW")
+            .replace("%w", "e") // Day of week (0-6), 0 is Sunday
+            .replace("%W", "ww")
+            .replace("%x", "MM/dd/yy")
+            .replace("%X", "HH:mm:ss")
+            .replace("%y", "yy")
+            .replace("%Y", "yyyy")
+            .replace("%z", "Z")
+            .replace("%:z", "XXX")
+            .replace("%::z", "XXX")
+            .replace("%:::z", "XXX")
+            .replace("%Z", "z");
+    }
+
     @Command(name = "random", mixinStandardHelpOptions = true, description = "Generate a random date with parameters.")
     static class RandomCommand implements Callable<Integer> {
         @Option(names = {"--after"}, description = "Generate a date after this date (e.g., '2023-01-01').")
@@ -424,6 +575,9 @@ public class DateCommand {
 
         @Option(names = {"-f", "--format"}, description = "Output format for the generated date (e.g., 'yyyy-MM-dd'). Defaults to ISO_LOCAL_DATE.")
         private String outputFormat = "yyyy-MM-dd";
+
+        @Option(names = {"--gnu-output-format"}, description = "Treat output format (-f) as GNU date format.")
+        private boolean gnuOutputFormat;
 
         @Override
         public Integer call() {
@@ -449,8 +603,18 @@ public class DateCommand {
                 long randomEpochDay = ThreadLocalRandom.current().nextLong(minEpochDay, maxEpochDay + 1);
                 var randomDate = LocalDate.ofEpochDay(randomEpochDay);
 
-                var formatter = DateTimeFormatter.ofPattern(outputFormat);
-                System.out.println(randomDate.format(formatter));
+                String finalOutputFormat = outputFormat;
+                if (gnuOutputFormat) {
+                    finalOutputFormat = convertGnuFormatToJava(outputFormat);
+                }
+
+                // Special handling for epoch seconds (%s)
+                if (finalOutputFormat.contains("epoch_seconds")) {
+                    System.out.println(randomDate.atStartOfDay(ZoneId.systemDefault()).toEpochSecond());
+                } else {
+                    var formatter = DateTimeFormatter.ofPattern(finalOutputFormat);
+                    System.out.println(randomDate.format(formatter));
+                }
 
             } catch (DateTimeParseException e) {
                 System.err.println("Error: Could not parse date string. Please use 'yyyy-MM-dd' format for --after and --before. " + e.getMessage());
