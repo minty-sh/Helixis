@@ -8,6 +8,12 @@ import sh.minty.helixis.commands.CryptCommand;
 import sh.minty.helixis.commands.DateCommand;
 import sh.minty.helixis.commands.PasswordCommand;
 import sh.minty.helixis.commands.UuidCommand;
+import sh.minty.helixis.commands.UrlCommand;
+import sh.minty.helixis.commands.DnsCommand;
+import sh.minty.helixis.commands.PortScanCommand;
+import sh.minty.helixis.commands.ChecksumCommand;
+import sh.minty.helixis.commands.FileCompareCommand;
+import sh.minty.helixis.commands.FileTouchCommand;
 
 @Command(
     name = "helixis",
@@ -20,7 +26,13 @@ import sh.minty.helixis.commands.UuidCommand;
         ColorCommand.class,
         CryptCommand.class,
         DateCommand.class,
-        UuidCommand.class
+        UuidCommand.class,
+        UrlCommand.class,
+        DnsCommand.class,
+        PortScanCommand.class,
+        ChecksumCommand.class,
+        FileCompareCommand.class,
+        FileTouchCommand.class
     }
 )
 public class App {
