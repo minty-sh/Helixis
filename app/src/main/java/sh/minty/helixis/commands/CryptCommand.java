@@ -1,25 +1,18 @@
 package sh.minty.helixis.commands;
 
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Parameters;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 
-@Command(name = "crypt", mixinStandardHelpOptions = true,
-        description = "Cryptography operations.",
-        subcommands = { CryptCommand.ReverseAlphabet.class, HashCommand.class, AesCommand.class }
-)
+@Command(name = "crypt", mixinStandardHelpOptions = true, description = "Cryptography operations.", subcommands = {
+        CryptCommand.ReverseAlphabet.class, HashCommand.class, AesCommand.class})
 public class CryptCommand {
-    @Command(
-        name = "reverse-alphabet",
-        mixinStandardHelpOptions = true,
-        description = "Encrypts or decrypts a file using a reverse alphabet cipher."
-    )
+    @Command(name = "reverse-alphabet", mixinStandardHelpOptions = true, description = "Encrypts or decrypts a file using a reverse alphabet cipher.")
     static class ReverseAlphabet implements Callable<Integer> {
         @Parameters(index = "0", description = "Mode: 'encrypt' or 'decrypt'")
         private String mode;
@@ -28,6 +21,7 @@ public class CryptCommand {
         private File inputFile;
 
         private static final Map<Character, Character> REVERSE_ALPHABET = new HashMap<>();
+
         static {
             for (char c = 'a'; c <= 'z'; c++) {
                 REVERSE_ALPHABET.put(c, (char) ('a' + 'z' - c));

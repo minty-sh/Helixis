@@ -1,14 +1,13 @@
 package sh.minty.helixis.commands;
 
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Parameters;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.concurrent.Callable;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "difference", mixinStandardHelpOptions = true, description = "Calculates the difference between two dates.")
 public class DateDifference implements Callable<Integer> {
@@ -45,7 +44,7 @@ public class DateDifference implements Callable<Integer> {
             long seconds = duration.getSeconds() % 60;
 
             System.out.printf("Time from %s to %s:%n", firstDate.format(FORMATTER), lastDate.format(FORMATTER));
-            
+
             var result = new StringBuilder();
             appendUnit(result, years, "year");
             appendUnit(result, months, "month");

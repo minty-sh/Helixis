@@ -1,9 +1,5 @@
 package sh.minty.helixis.commands;
 
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -18,11 +14,11 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
-@Command(
-    name = "aes", mixinStandardHelpOptions = true,
-    description = "Encrypts or decrypts strings or files using AES."
-)
+@Command(name = "aes", mixinStandardHelpOptions = true, description = "Encrypts or decrypts strings or files using AES.")
 public class AesCommand implements Callable<Integer> {
     @Parameters(index = "0", description = "Mode: 'encrypt' or 'decrypt'")
     private String mode;
@@ -218,4 +214,3 @@ public class AesCommand implements Callable<Integer> {
         }
     }
 }
-

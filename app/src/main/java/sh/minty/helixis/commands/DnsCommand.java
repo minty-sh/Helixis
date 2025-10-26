@@ -1,26 +1,19 @@
 package sh.minty.helixis.commands;
 
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
-
+import java.util.Hashtable;
+import java.util.concurrent.Callable;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-import java.util.Hashtable;
-import java.util.concurrent.Callable;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
-@Command(
-    name = "dns",
-    mixinStandardHelpOptions = true,
-    description = "DNS lookup utilities.",
-    subcommands = {
-        DnsCommand.LookupCommand.class
-    }
-)
+@Command(name = "dns", mixinStandardHelpOptions = true, description = "DNS lookup utilities.", subcommands = {
+        DnsCommand.LookupCommand.class})
 public class DnsCommand {
 
     @Command(name = "lookup", mixinStandardHelpOptions = true, description = "Performs a DNS lookup for a given hostname.")
@@ -28,7 +21,8 @@ public class DnsCommand {
         @Parameters(index = "0", description = "The hostname to lookup.")
         private String domainName;
 
-        @Option(names = {"-t", "--type"}, description = "The record type to lookup (A, AAAA, MX, TXT, CNAME, NS). Defaults to A.", defaultValue = "A")
+        @Option(names = {"-t",
+                "--type"}, description = "The record type to lookup (A, AAAA, MX, TXT, CNAME, NS). Defaults to A.", defaultValue = "A")
         private String recordType;
 
         @Override

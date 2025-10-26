@@ -1,11 +1,10 @@
 package sh.minty.helixis.commands;
 
+import java.util.Random;
+import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
-
-import java.util.Random;
-import java.util.concurrent.Callable;
 
 @Command(name = "color", mixinStandardHelpOptions = true, description = "Converts RGB values to hexadecimal values and finds similar colors.")
 public class ColorCommand implements Callable<Integer> {
@@ -37,7 +36,7 @@ public class ColorCommand implements Callable<Integer> {
             var colors = getSimilarColors(red, green, blue, similarColors);
             for (var color : colors) {
                 System.out.println(color);
-            }   
+            }
         }
 
         return 0;
@@ -50,33 +49,37 @@ public class ColorCommand implements Callable<Integer> {
     /**
      * Generates {@code amount} colours that are similar to the supplied RGB colour.
      *
-     * @param r      red component (0‑255)
-     * @param g      green component (0‑255)
-     * @param b      blue component (0‑255)
-     * @param amount how many similar colours to generate
+     * @param r
+     *            red component (0‑255)
+     * @param g
+     *            green component (0‑255)
+     * @param b
+     *            blue component (0‑255)
+     * @param amount
+     *            how many similar colours to generate
      * @return an array containing the hex strings of the generated colours
      */
     private String[] getSimilarColors(int r, int g, int b, int amount) {
         var similarColors = new String[amount];
         // Base color as an array so we can loop over the three channels.
-        final int[] base = { r, g, b };
+        final int[] base = {r, g, b};
 
         // standard deviation for the Gaussian noise
         final double sigma = 30.0;
         final int MIN = 0, MAX = 255;
-    
+
         for (int i = 0; i < amount; i++) {
             var newRgb = new int[3];
-    
+
             // Apply Gaussian noise to each channel and clamp to [0,255].
             for (int c = 0; c < 3; c++) {
                 double noisy = base[c] + random.nextGaussian() * sigma;
                 newRgb[c] = (int) Math.min(MAX, Math.max(MIN, noisy));
             }
-    
+
             similarColors[i] = rgbToHex(newRgb[0], newRgb[1], newRgb[2]);
         }
-    
+
         return similarColors;
     }
 }

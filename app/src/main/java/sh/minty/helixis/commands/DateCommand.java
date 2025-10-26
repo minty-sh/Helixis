@@ -1,42 +1,35 @@
 package sh.minty.helixis.commands;
 
+import java.time.DayOfWeek;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Year;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ThreadLocalRandom;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-import java.time.DayOfWeek;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoField;
-import java.time.temporal.ChronoUnit;
-import java.time.Year;
-import java.time.ZoneId;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ThreadLocalRandom;
-
-@Command(
-    name = "date",
-    mixinStandardHelpOptions = true,
-    description = "Date utilities.",
-    subcommands = {
-        DateDifference.class, DateCommand.CurrentDateTimeCommand.class,
-        DateCommand.FormatCommand.class, DateCommand.ArithmeticCommand.class,
-        DateCommand.BusinessDayArithmeticCommand.class, DateCommand.TimestampCommand.class,
-        DateCommand.ExtractCommand.class, DateCommand.LeapYearCommand.class,
-        DateCommand.TimezoneConvertCommand.class, DateCommand.CalendarCommand.class,
-        DateCommand.RandomCommand.class
-    }
-)
+@Command(name = "date", mixinStandardHelpOptions = true, description = "Date utilities.", subcommands = {
+        DateDifference.class, DateCommand.CurrentDateTimeCommand.class, DateCommand.FormatCommand.class,
+        DateCommand.ArithmeticCommand.class, DateCommand.BusinessDayArithmeticCommand.class,
+        DateCommand.TimestampCommand.class, DateCommand.ExtractCommand.class, DateCommand.LeapYearCommand.class,
+        DateCommand.TimezoneConvertCommand.class, DateCommand.CalendarCommand.class, DateCommand.RandomCommand.class})
 public class DateCommand {
     @Command(name = "now", mixinStandardHelpOptions = true, description = "Display the current date and time with GNU date formatting options.")
     static class CurrentDateTimeCommand implements Callable<Integer> {
-        @Option(names = {"-f", "--format"}, description = "Specify output format (e.g., 'yyyy-MM-dd HH:mm:ss'). Defaults to ISO_LOCAL_DATE_TIME.")
+        @Option(names = {"-f",
+                "--format"}, description = "Specify output format (e.g., 'yyyy-MM-dd HH:mm:ss'). Defaults to ISO_LOCAL_DATE_TIME.")
         private String format = "yyyy-MM-dd HH:mm:ss";
 
-        @Option(names = {"-z", "--zone"}, description = "Specify time zone (e.g., 'America/New_York'). Defaults to system default.")
+        @Option(names = {"-z",
+                "--zone"}, description = "Specify time zone (e.g., 'America/New_York'). Defaults to system default.")
         private String zoneId;
 
         @Option(names = {"--gnu-format"}, description = "Treat output format (-f) as GNU date format.")
@@ -57,7 +50,8 @@ public class DateCommand {
                 System.out.println(now.atZone(ZoneId.systemDefault()).toEpochSecond());
             } else {
                 var formatter = DateTimeFormatter.ofPattern(finalFormat).withZone(targetZone);
-                System.out.println(now.atZone(ZoneId.systemDefault()).withZoneSameInstant(targetZone).format(formatter));
+                System.out
+                        .println(now.atZone(ZoneId.systemDefault()).withZoneSameInstant(targetZone).format(formatter));
             }
             return 0;
         }
@@ -68,13 +62,16 @@ public class DateCommand {
         @Parameters(index = "0", description = "The date string to format.")
         private String dateString;
 
-        @Option(names = {"-i", "--input-format"}, description = "Specify input format (e.g., 'yyyy-MM-dd HH:mm:ss'). Defaults to ISO_LOCAL_DATE_TIME.")
+        @Option(names = {"-i",
+                "--input-format"}, description = "Specify input format (e.g., 'yyyy-MM-dd HH:mm:ss'). Defaults to ISO_LOCAL_DATE_TIME.")
         private String inputFormat = "yyyy-MM-dd HH:mm:ss";
 
-        @Option(names = {"-o", "--output-format"}, description = "Specify output format (e.g., 'yyyy/MM/dd HH:mm:ss'). Defaults to ISO_LOCAL_DATE_TIME.")
+        @Option(names = {"-o",
+                "--output-format"}, description = "Specify output format (e.g., 'yyyy/MM/dd HH:mm:ss'). Defaults to ISO_LOCAL_DATE_TIME.")
         private String outputFormat = "yyyy-MM-dd HH:mm:ss";
 
-        @Option(names = {"-z", "--zone"}, description = "Specify time zone for parsing and formatting (e.g., 'America/New_York'). Defaults to system default.")
+        @Option(names = {"-z",
+                "--zone"}, description = "Specify time zone for parsing and formatting (e.g., 'America/New_York'). Defaults to system default.")
         private String zoneId;
 
         @Option(names = {"--gnu-input-format"}, description = "Treat input format (-i) as GNU date format.")
@@ -128,13 +125,16 @@ public class DateCommand {
         @Parameters(index = "2", description = "The unit of the amount (e.g., YEARS, MONTHS, DAYS, HOURS, MINUTES, SECONDS).")
         private ChronoUnit unit;
 
-        @Option(names = {"-i", "--input-format"}, description = "Specify input format (e.g., 'yyyy-MM-dd HH:mm:ss'). Defaults to ISO_LOCAL_DATE_TIME.")
+        @Option(names = {"-i",
+                "--input-format"}, description = "Specify input format (e.g., 'yyyy-MM-dd HH:mm:ss'). Defaults to ISO_LOCAL_DATE_TIME.")
         private String inputFormat = "yyyy-MM-dd HH:mm:ss";
 
-        @Option(names = {"-o", "--output-format"}, description = "Specify output format (e.g., 'yyyy/MM/dd HH:mm:ss'). Defaults to ISO_LOCAL_DATE_TIME.")
+        @Option(names = {"-o",
+                "--output-format"}, description = "Specify output format (e.g., 'yyyy/MM/dd HH:mm:ss'). Defaults to ISO_LOCAL_DATE_TIME.")
         private String outputFormat = "yyyy-MM-dd HH:mm:ss";
 
-        @Option(names = {"-z", "--zone"}, description = "Specify time zone for parsing and formatting (e.g., 'America/New_York'). Defaults to system default.")
+        @Option(names = {"-z",
+                "--zone"}, description = "Specify time zone for parsing and formatting (e.g., 'America/New_York'). Defaults to system default.")
         private String zoneId;
 
         @Option(names = {"--gnu-input-format"}, description = "Treat input format (-i) as GNU date format.")
@@ -186,11 +186,7 @@ public class DateCommand {
         }
     }
 
-    @Command(
-        name = "business-arithmetic",
-        mixinStandardHelpOptions = true,
-        description = "Calculate the date after or before a specified number of business days."
-    )
+    @Command(name = "business-arithmetic", mixinStandardHelpOptions = true, description = "Calculate the date after or before a specified number of business days.")
     static class BusinessDayArithmeticCommand implements Callable<Integer> {
         @Parameters(index = "0", description = "The date string to perform arithmetic on.")
         private String dateString;
@@ -198,10 +194,12 @@ public class DateCommand {
         @Parameters(index = "1", description = "The number of business days to add or subtract.")
         private int businessDays;
 
-        @Option(names = {"-i", "--input-format"}, description = "Specify input format (e.g., 'yyyy-MM-dd'). Defaults to ISO_LOCAL_DATE.")
+        @Option(names = {"-i",
+                "--input-format"}, description = "Specify input format (e.g., 'yyyy-MM-dd'). Defaults to ISO_LOCAL_DATE.")
         private String inputFormat = "yyyy-MM-dd";
 
-        @Option(names = {"-o", "--output-format"}, description = "Specify output format (e.g., 'yyyy/MM/dd'). Defaults to ISO_LOCAL_DATE.")
+        @Option(names = {"-o",
+                "--output-format"}, description = "Specify output format (e.g., 'yyyy/MM/dd'). Defaults to ISO_LOCAL_DATE.")
         private String outputFormat = "yyyy-MM-dd";
 
         @Override
@@ -214,7 +212,8 @@ public class DateCommand {
                 int daysCount = 0;
                 while (daysCount < Math.abs(businessDays)) {
                     resultDateTime = resultDateTime.plusDays((businessDays > 0) ? 1 : -1);
-                    if (!(resultDateTime.getDayOfWeek() == DayOfWeek.SATURDAY || resultDateTime.getDayOfWeek() == DayOfWeek.SUNDAY)) {
+                    if (!(resultDateTime.getDayOfWeek() == DayOfWeek.SATURDAY
+                            || resultDateTime.getDayOfWeek() == DayOfWeek.SUNDAY)) {
                         daysCount++;
                     }
                 }
@@ -229,12 +228,8 @@ public class DateCommand {
         }
     }
 
-    @Command(
-        name = "timestamp",
-        mixinStandardHelpOptions = true,
-        description = "Convert between human-readable dates and Unix timestamps, and vice-versa.",
-        subcommands = { DateCommand.ToTimestampCommand.class, DateCommand.FromTimestampCommand.class }
-    )
+    @Command(name = "timestamp", mixinStandardHelpOptions = true, description = "Convert between human-readable dates and Unix timestamps, and vice-versa.", subcommands = {
+            DateCommand.ToTimestampCommand.class, DateCommand.FromTimestampCommand.class})
     static class TimestampCommand implements Callable<Integer> {
         @Override
         public Integer call() {
@@ -243,25 +238,17 @@ public class DateCommand {
         }
     }
 
-    @Command(
-        name = "to-timestamp",
-        mixinStandardHelpOptions = true,
-        description = "Convert a human-readable date to a Unix timestamp."
-    )
+    @Command(name = "to-timestamp", mixinStandardHelpOptions = true, description = "Convert a human-readable date to a Unix timestamp.")
     static class ToTimestampCommand implements Callable<Integer> {
         @Parameters(index = "0", description = "The date string to convert to timestamp.")
         private String dateString;
 
-        @Option(
-            names = {"-i", "--input-format"},
-            description = "Specify input format (e.g., 'yyyy-MM-dd HH:mm:ss'). Defaults to ISO_LOCAL_DATE_TIME."
-        )
+        @Option(names = {"-i",
+                "--input-format"}, description = "Specify input format (e.g., 'yyyy-MM-dd HH:mm:ss'). Defaults to ISO_LOCAL_DATE_TIME.")
         private String inputFormat = "yyyy-MM-dd HH:mm:ss";
 
-        @Option(
-            names = {"-z", "--zone"},
-            description = "Specify time zone for parsing (e.g., 'America/New_York'). Defaults to system default."
-        )
+        @Option(names = {"-z",
+                "--zone"}, description = "Specify time zone for parsing (e.g., 'America/New_York'). Defaults to system default.")
         private String zoneId;
 
         @Option(names = {"--gnu-input-format"}, description = "Treat input format (-i) as GNU date format.")
@@ -292,19 +279,17 @@ public class DateCommand {
         }
     }
 
-    @Command(
-        name = "from-timestamp",
-        mixinStandardHelpOptions = true,
-        description = "Convert a Unix timestamp to a human-readable date."
-    )
+    @Command(name = "from-timestamp", mixinStandardHelpOptions = true, description = "Convert a Unix timestamp to a human-readable date.")
     static class FromTimestampCommand implements Callable<Integer> {
         @Parameters(index = "0", description = "The Unix timestamp to convert.")
         private long timestamp;
 
-        @Option(names = {"-f", "--format"}, description = "Specify output format (e.g., 'yyyy-MM-dd HH:mm:ss'). Defaults to ISO_LOCAL_DATE_TIME.")
+        @Option(names = {"-f",
+                "--format"}, description = "Specify output format (e.g., 'yyyy-MM-dd HH:mm:ss'). Defaults to ISO_LOCAL_DATE_TIME.")
         private String outputFormat = "yyyy-MM-dd HH:mm:ss";
 
-        @Option(names = {"-z", "--zone"}, description = "Specify time zone for formatting (e.g., 'America/New_York'). Defaults to system default.")
+        @Option(names = {"-z",
+                "--zone"}, description = "Specify time zone for formatting (e.g., 'America/New_York'). Defaults to system default.")
         private String zoneId;
 
         @Option(names = {"--gnu-format"}, description = "Treat output format (-f) as GNU date format.")
@@ -336,25 +321,16 @@ public class DateCommand {
         }
     }
 
-    @Command(
-        name = "extract",
-        mixinStandardHelpOptions = true,
-        description = "Extract components from a given date."
-    )
+    @Command(name = "extract", mixinStandardHelpOptions = true, description = "Extract components from a given date.")
     static class ExtractCommand implements Callable<Integer> {
         @Parameters(index = "0", description = "The date string to extract components from.")
         private String dateString;
 
-        @Parameters(
-            index = "1",
-            description = "The component to extract (e.g., DAY_OF_WEEK, DAY_OF_MONTH, DAY_OF_YEAR, YEAR, MONTH, HOUR, MINUTE, SECOND)."
-        )
+        @Parameters(index = "1", description = "The component to extract (e.g., DAY_OF_WEEK, DAY_OF_MONTH, DAY_OF_YEAR, YEAR, MONTH, HOUR, MINUTE, SECOND).")
         private ChronoField component;
 
-        @Option(
-            names = {"-i", "--input-format"},
-            description = "Specify input format (e.g., 'yyyy-MM-dd HH:mm:ss'). Defaults to ISO_LOCAL_DATE_TIME."
-        )
+        @Option(names = {"-i",
+                "--input-format"}, description = "Specify input format (e.g., 'yyyy-MM-dd HH:mm:ss'). Defaults to ISO_LOCAL_DATE_TIME.")
         private String inputFormat = "yyyy-MM-dd HH:mm:ss";
 
         @Override
@@ -388,11 +364,7 @@ public class DateCommand {
         }
     }
 
-    @Command(
-        name = "leap-year",
-        mixinStandardHelpOptions = true,
-        description = "Determine if a given year is a leap year."
-    )
+    @Command(name = "leap-year", mixinStandardHelpOptions = true, description = "Determine if a given year is a leap year.")
     static class LeapYearCommand implements Callable<Integer> {
         @Parameters(index = "0", description = "The year to check.")
         private int year;
@@ -404,11 +376,7 @@ public class DateCommand {
         }
     }
 
-    @Command(
-        name = "timezone-convert",
-        mixinStandardHelpOptions = true,
-        description = "Convert a date and time from one time zone to another."
-    )
+    @Command(name = "timezone-convert", mixinStandardHelpOptions = true, description = "Convert a date and time from one time zone to another.")
     static class TimezoneConvertCommand implements Callable<Integer> {
         @Parameters(index = "0", description = "The date string to convert.")
         private String dateString;
@@ -419,16 +387,12 @@ public class DateCommand {
         @Parameters(index = "2", description = "The target time zone ID (e.g., 'Europe/London').")
         private String targetZoneId;
 
-        @Option(
-            names = {"-i", "--input-format"},
-            description = "Specify input format (e.g., 'yyyy-MM-dd HH:mm:ss'). Defaults to ISO_LOCAL_DATE_TIME."
-        )
+        @Option(names = {"-i",
+                "--input-format"}, description = "Specify input format (e.g., 'yyyy-MM-dd HH:mm:ss'). Defaults to ISO_LOCAL_DATE_TIME.")
         private String inputFormat = "yyyy-MM-dd HH:mm:ss";
 
-        @Option(
-            names = {"-o", "--output-format"},
-            description = "Specify output format (e.g., 'yyyy-MM-dd HH:mm:ss'). Defaults to ISO_LOCAL_DATE_TIME."
-        )
+        @Option(names = {"-o",
+                "--output-format"}, description = "Specify output format (e.g., 'yyyy-MM-dd HH:mm:ss'). Defaults to ISO_LOCAL_DATE_TIME.")
         private String outputFormat = "yyyy-MM-dd HH:mm:ss";
 
         @Option(names = {"--gnu-input-format"}, description = "Treat input format (-i) as GNU date format.")
@@ -459,12 +423,14 @@ public class DateCommand {
                 if (finalOutputFormat.contains("epoch_seconds")) {
                     System.out.println(targetZonedDateTime.toEpochSecond());
                 } else {
-                    var outputFormatter = DateTimeFormatter.ofPattern(finalOutputFormat).withZone(ZoneId.of(targetZoneId));
+                    var outputFormatter = DateTimeFormatter.ofPattern(finalOutputFormat)
+                            .withZone(ZoneId.of(targetZoneId));
                     System.out.println(targetZonedDateTime.format(outputFormatter));
                 }
 
             } catch (DateTimeParseException e) {
-                System.err.println("Error: Could not parse date string with the given input format or zone. " + e.getMessage());
+                System.err.println(
+                        "Error: Could not parse date string with the given input format or zone. " + e.getMessage());
                 return 1;
             } catch (Exception e) {
                 System.err.println("Error: " + e.getMessage());
@@ -517,52 +483,19 @@ public class DateCommand {
     }
 
     private static String convertGnuFormatToJava(String gnuFormat) {
-        return gnuFormat
-            .replace("%a", "E")
-            .replace("%A", "EEEE")
-            .replace("%b", "MMM")
-            .replace("%B", "MMMM")
-            .replace("%c", "E MMM d HH:mm:ss yyyy")
-            .replace("%C", "yy") // Century, last two digits
-            .replace("%d", "dd")
-            .replace("%D", "MM/dd/yy")
-            .replace("%e", "d")
-            .replace("%F", "yyyy-MM-dd")
-            .replace("%g", "yy")
-            .replace("%G", "YYYY")
-            .replace("%h", "MMM")
-            .replace("%H", "HH")
-            .replace("%I", "hh")
-            .replace("%j", "D")
-            .replace("%k", "H")
-            .replace("%l", "h")
-            .replace("%m", "MM")
-            .replace("%M", "mm")
-            .replace("%n", "\n")
-            .replace("%N", "n")
-            .replace("%p", "a")
-            .replace("%P", "a") // lower case am/pm
-            .replace("%q", "Q")
-            .replace("%r", "hh:mm:ss a")
-            .replace("%R", "HH:mm")
-            .replace("%s", "epoch_seconds") // Special handling
-            .replace("%S", "ss")
-            .replace("%t", "\t")
-            .replace("%T", "HH:mm:ss")
-            .replace("%u", "e")
-            .replace("%U", "ww")
-            .replace("%V", "WW")
-            .replace("%w", "e") // Day of week (0-6), 0 is Sunday
-            .replace("%W", "ww")
-            .replace("%x", "MM/dd/yy")
-            .replace("%X", "HH:mm:ss")
-            .replace("%y", "yy")
-            .replace("%Y", "yyyy")
-            .replace("%z", "Z")
-            .replace("%:z", "XXX")
-            .replace("%::z", "XXX")
-            .replace("%:::z", "XXX")
-            .replace("%Z", "z");
+        return gnuFormat.replace("%a", "E").replace("%A", "EEEE").replace("%b", "MMM").replace("%B", "MMMM")
+                .replace("%c", "E MMM d HH:mm:ss yyyy").replace("%C", "yy") // Century, last two digits
+                .replace("%d", "dd").replace("%D", "MM/dd/yy").replace("%e", "d").replace("%F", "yyyy-MM-dd")
+                .replace("%g", "yy").replace("%G", "YYYY").replace("%h", "MMM").replace("%H", "HH").replace("%I", "hh")
+                .replace("%j", "D").replace("%k", "H").replace("%l", "h").replace("%m", "MM").replace("%M", "mm")
+                .replace("%n", "\n").replace("%N", "n").replace("%p", "a").replace("%P", "a") // lower case am/pm
+                .replace("%q", "Q").replace("%r", "hh:mm:ss a").replace("%R", "HH:mm").replace("%s", "epoch_seconds") // Special
+                                                                                                                      // handling
+                .replace("%S", "ss").replace("%t", "\t").replace("%T", "HH:mm:ss").replace("%u", "e")
+                .replace("%U", "ww").replace("%V", "WW").replace("%w", "e") // Day of week (0-6), 0 is Sunday
+                .replace("%W", "ww").replace("%x", "MM/dd/yy").replace("%X", "HH:mm:ss").replace("%y", "yy")
+                .replace("%Y", "yyyy").replace("%z", "Z").replace("%:z", "XXX").replace("%::z", "XXX")
+                .replace("%:::z", "XXX").replace("%Z", "z");
     }
 
     @Command(name = "random", mixinStandardHelpOptions = true, description = "Generate a random date with parameters.")
@@ -573,7 +506,8 @@ public class DateCommand {
         @Option(names = {"--before"}, description = "Generate a date before this date (e.g., '2024-12-31').")
         private String beforeDateString;
 
-        @Option(names = {"-f", "--format"}, description = "Output format for the generated date (e.g., 'yyyy-MM-dd'). Defaults to ISO_LOCAL_DATE.")
+        @Option(names = {"-f",
+                "--format"}, description = "Output format for the generated date (e.g., 'yyyy-MM-dd'). Defaults to ISO_LOCAL_DATE.")
         private String outputFormat = "yyyy-MM-dd";
 
         @Option(names = {"--gnu-output-format"}, description = "Treat output format (-f) as GNU date format.")
@@ -617,7 +551,9 @@ public class DateCommand {
                 }
 
             } catch (DateTimeParseException e) {
-                System.err.println("Error: Could not parse date string. Please use 'yyyy-MM-dd' format for --after and --before. " + e.getMessage());
+                System.err.println(
+                        "Error: Could not parse date string. Please use 'yyyy-MM-dd' format for --after and --before. "
+                                + e.getMessage());
                 return 1;
             } catch (Exception e) {
                 System.err.println("Error: " + e.getMessage());

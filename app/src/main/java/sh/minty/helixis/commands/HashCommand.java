@@ -1,9 +1,5 @@
 package sh.minty.helixis.commands;
 
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -11,17 +7,17 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.Callable;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "hash", mixinStandardHelpOptions = true, description = "Calculates the hash of a string or a file.")
 public class HashCommand implements Callable<Integer> {
     @Parameters(index = "0", description = "The input string or file path to hash.")
     private String input;
 
-    @Option(
-        names = {"-a", "--algorithm"},
-        description = "Hashing algorithm (e.g., SHA-256, SHA-512). Default: SHA-256",
-        defaultValue = "SHA-256"
-    )
+    @Option(names = {"-a",
+            "--algorithm"}, description = "Hashing algorithm (e.g., SHA-256, SHA-512). Default: SHA-256", defaultValue = "SHA-256")
     private String algorithm;
 
     @Option(names = {"-f", "--file"}, description = "Treat input as a file path.")

@@ -1,20 +1,15 @@
 package sh.minty.helixis.commands;
 
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
-
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
-@Command(
-    name = "portscan",
-    mixinStandardHelpOptions = true,
-    description = "Scans for open ports on a given host."
-)
+@Command(name = "portscan", mixinStandardHelpOptions = true, description = "Scans for open ports on a given host.")
 public class PortScanCommand implements Callable<Integer> {
 
     @Parameters(index = "0", description = "The target host (IP address or hostname).")

@@ -14,8 +14,11 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Utilities for RFC 4122 UUID versions 1, 2, 3 and 5.
  *
- * Note on v2: Java doesn't provide a cross-platform UID/GID API. This implementation
- * requires you to provide the 32-bit local identifier and an 8-bit domain (0-255).
+ * <p>
+ * Note on v2: Java doesn't provide a cross-platform UID/GID API. This
+ * implementation requires you to provide the 32-bit local identifier and an
+ * 8-bit domain (0-255).
+ * </p>
  */
 public final class UuidFactory {
     private static final long UUID_EPOCH_OFFSET = 0x01B21DD213814000L; // 122192928000000000L
@@ -32,11 +35,12 @@ public final class UuidFactory {
         clockSequence = secureRandom.nextInt() & 0x3FFF;
     }
 
-    private UuidFactory() {}
+    private UuidFactory() {
+    }
 
     /**
      * Generate a version-1 (time-based) UUID.
-
+     *
      * @return java.util.UUID the generated UUID from the current time
      */
     public static UUID uuidV1() {
@@ -45,9 +49,12 @@ public final class UuidFactory {
 
     /**
      * Generate a version-2 (DCE security) UUID.
-
-     * @param localIdentifier 32-bit local identifier (e.g. UID or GID)
-     * @param localDomain 8-bit local domain (0..255). Typical DCE domains: 0=user,1=group,2=org
+     *
+     * @param localIdentifier
+     *            32-bit local identifier (e.g. UID or GID)
+     * @param localDomain
+     *            8-bit local domain (0..255). Typical DCE domains:
+     *            0=user,1=group,2=org
      * @return java.util.UUID
      */
     public static UUID uuidV2(int localIdentifier, int localDomain) {
@@ -59,9 +66,11 @@ public final class UuidFactory {
 
     /**
      * Generate a version-3 (name-based, MD5) UUID.
-
-     * @param namespace namespace UUID
-     * @param name name string (UTF-8)
+     *
+     * @param namespace
+     *            namespace UUID
+     * @param name
+     *            name string (UTF-8)
      */
     public static UUID uuidV3(UUID namespace, String name) {
         return nameBased(namespace, name, "MD5", 3);
@@ -69,9 +78,11 @@ public final class UuidFactory {
 
     /**
      * Generate a version-5 (name-based, SHA-1) UUID.
-
-     * @param namespace namespace UUID
-     * @param name name string (UTF-8)
+     *
+     * @param namespace
+     *            namespace UUID
+     * @param name
+     *            name string (UTF-8)
      */
     public static UUID uuidV5(UUID namespace, String name) {
         return nameBased(namespace, name, "SHA-1", 5);
@@ -83,7 +94,9 @@ public final class UuidFactory {
 
         synchronized (lock) {
             long nowMillis = System.currentTimeMillis();
-            // try to add nanosecond precision using nanoTime, not perfect but helps uniqueness within same ms
+            // try to add nanosecond precision using nanoTime, not perfect but helps
+            // uniqueness within
+            // same ms
             long nanosPart = (System.nanoTime() % 10000L); // remainder in nanoseconds - best-effort
             timestamp100ns = nowMillis * 10000L + nanosPart + UUID_EPOCH_OFFSET;
 
@@ -108,7 +121,8 @@ public final class UuidFactory {
             timeHi = (timeHi & 0x0FFF) | (2 << 12); // set version to 2
         }
 
-        // clock seq: 14 bits. For v2, clock_seq_low low byte is replaced by domain (8-bit)
+        // clock seq: 14 bits. For v2, clock_seq_low low byte is replaced by domain
+        // (8-bit)
         int clockSeqLow = clkSeq & 0xFF;
         int clockSeqHi = (clkSeq >>> 8) & 0x3F; // 6 bits (top 2 bits used for variant later)
 
@@ -124,7 +138,8 @@ public final class UuidFactory {
         msb |= (timeHi & 0xFFFFL);
 
         long lsb = 0L;
-        // clock_seq_hi_and_reserved: top two bits are variant (10), next 6 are clockSeqHi
+        // clock_seq_hi_and_reserved: top two bits are variant (10), next 6 are
+        // clockSeqHi
         int clockSeqHiAndReserved = (clockSeqHi & 0x3F) | 0x80; // set variant bits 10xxxxxx (0x80)
         lsb |= ((long) clockSeqHiAndReserved & 0xFFL) << 56;
         lsb |= ((long) clockSeqLow & 0xFFL) << 48;
@@ -194,7 +209,8 @@ public final class UuidFactory {
         return -1; // Indicate that no valid MAC address was found
     }
 
-    // Try to obtain a MAC address; if none, generate a random 48-bit number and set multicast bit.
+    // Try to obtain a MAC address; if none, generate a random 48-bit number and set
+    // multicast bit.
     private static long createNodeIdentifier() {
         try {
             var ifs = NetworkInterface.getNetworkInterfaces();
@@ -207,9 +223,11 @@ public final class UuidFactory {
                             return node;
                         }
                     }
-                } catch (SocketException e) { }
+                } catch (SocketException e) {
+                }
             }
-        } catch (SocketException e) { }
+        } catch (SocketException e) {
+        }
 
         // fallback: random 48-bit with multicast bit set (per RFC)
         long node = ThreadLocalRandom.current().nextLong() & 0x0000FFFFFFFFFFFFL;

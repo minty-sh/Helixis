@@ -1,9 +1,5 @@
 package sh.minty.helixis.commands;
 
-import picocli.CommandLine.ArgGroup;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-
 import java.security.SecureRandom;
 import java.util.Random;
 import java.util.UUID;
@@ -11,6 +7,9 @@ import java.util.concurrent.Callable;
 import java.util.function.BiFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import picocli.CommandLine.ArgGroup;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "uuid", mixinStandardHelpOptions = true, description = "Generate an UUID")
 public class UuidCommand implements Callable<Integer> {
@@ -36,7 +35,8 @@ public class UuidCommand implements Callable<Integer> {
         @Option(names = {"-l", "--local"}, description = "local identifier for UUIDv2 (default: none)", required = true)
         int localIdentifier;
 
-        @Option(names = {"-d", "--domain"}, description = "local domain for UUIDv2 (0-255). Typical DCE domains: 0=user,1=group,2=org", required = true)
+        @Option(names = {"-d",
+                "--domain"}, description = "local domain for UUIDv2 (0-255). Typical DCE domains: 0=user,1=group,2=org", required = true)
         int localDomain;
     }
 
@@ -70,11 +70,13 @@ public class UuidCommand implements Callable<Integer> {
                 uuid = UuidFactory.uuidV2(version2Options.localIdentifier, version2Options.localDomain);
             }
             case 3, 5 -> {
-                if (version3Or5Options == null || version3Or5Options.namespace == null || version3Or5Options.name == null) {
+                if (version3Or5Options == null || version3Or5Options.namespace == null
+                        || version3Or5Options.name == null) {
                     LOGGER.log(Level.SEVERE, "For UUIDv" + version + ", --namespace and --name are required.");
                     return 1;
                 }
-                // choose function by mapping: compute index 0 for v3, 1 for v5 without branching
+                // choose function by mapping: compute index 0 for v3, 1 for v5 without
+                // branching
                 // version 3 -> 0, version 5 -> 1
                 int idx = (version - 3) / 2;
                 var fn = (idx == 0) ? UUID_V3_FN : UUID_V5_FN;
@@ -84,10 +86,10 @@ public class UuidCommand implements Callable<Integer> {
                 random.nextBytes(data);
 
                 // set version 4 bits
-                data[6] &= 0x0f;  // clear version
-                data[6] |= 0x40;  // set version 4
-                data[8] &= 0x3f;  // clear variant
-                data[8] |= 0x80;  // set IETF variant
+                data[6] &= 0x0f; // clear version
+                data[6] |= 0x40; // set version 4
+                data[8] &= 0x3f; // clear variant
+                data[8] |= 0x80; // set IETF variant
 
                 long mostSigBits = 0;
                 for (int i = 0; i < 8; i++) {

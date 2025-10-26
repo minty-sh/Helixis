@@ -1,8 +1,5 @@
 package sh.minty.helixis.commands;
 
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Parameters;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -10,21 +7,16 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.Callable;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 
-@Command(
-    name = "checksum",
-    mixinStandardHelpOptions = true,
-    description = "Calculates file checksums (SHA-256, MD5, SHA-1, SHA-512).",
-    subcommands = {
-        ChecksumCommand.SHA256Command.class,
-        ChecksumCommand.MD5Command.class,
-        ChecksumCommand.SHA1Command.class,
-        ChecksumCommand.SHA512Command.class
-    }
-)
+@Command(name = "checksum", mixinStandardHelpOptions = true, description = "Calculates file checksums (SHA-256, MD5, SHA-1, SHA-512).", subcommands = {
+        ChecksumCommand.SHA256Command.class, ChecksumCommand.MD5Command.class, ChecksumCommand.SHA1Command.class,
+        ChecksumCommand.SHA512Command.class})
 public class ChecksumCommand {
 
-    private static String calculateChecksum(Path filePath, String algorithm) throws IOException, NoSuchAlgorithmException {
+    private static String calculateChecksum(Path filePath, String algorithm)
+            throws IOException, NoSuchAlgorithmException {
         var digest = MessageDigest.getInstance(algorithm);
 
         try (var fis = new FileInputStream(filePath.toFile())) {
@@ -44,7 +36,7 @@ public class ChecksumCommand {
         return sb.toString();
     }
 
-    static abstract class BaseChecksumCommand implements Callable<Integer> {
+    abstract static class BaseChecksumCommand implements Callable<Integer> {
         @Parameters(index = "0", description = "The path to the file.")
         protected String filePathString;
 

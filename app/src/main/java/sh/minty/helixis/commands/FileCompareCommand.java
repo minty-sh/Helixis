@@ -1,18 +1,13 @@
 package sh.minty.helixis.commands;
 
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Parameters;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.Callable;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 
-@Command(
-    name = "filecompare",
-    mixinStandardHelpOptions = true,
-    description = "Compares two files byte by byte."
-)
+@Command(name = "filecompare", mixinStandardHelpOptions = true, description = "Compares two files byte by byte.")
 public class FileCompareCommand implements Callable<Integer> {
 
     @Parameters(index = "0", description = "The path to the first file.")

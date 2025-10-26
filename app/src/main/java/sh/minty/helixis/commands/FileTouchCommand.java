@@ -1,9 +1,5 @@
 package sh.minty.helixis.commands;
 
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -14,21 +10,22 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.concurrent.Callable;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
-@Command(
-    name = "filetouch",
-    mixinStandardHelpOptions = true,
-    description = "Changes file timestamps."
-)
+@Command(name = "filetouch", mixinStandardHelpOptions = true, description = "Changes file timestamps.")
 public class FileTouchCommand implements Callable<Integer> {
 
     @Parameters(index = "0", description = "The path to the file.")
     private String filePathString;
 
-    @Option(names = {"-d", "--date"}, description = "The new date and time (e.g., '2023-10-26 10:30:00'). Defaults to current time.")
+    @Option(names = {"-d",
+            "--date"}, description = "The new date and time (e.g., '2023-10-26 10:30:00'). Defaults to current time.")
     private String dateString;
 
-    @Option(names = {"-f", "--format"}, description = "The format of the date string (e.g., 'yyyy-MM-dd HH:mm:ss'). Defaults to ISO_LOCAL_DATE_TIME.")
+    @Option(names = {"-f",
+            "--format"}, description = "The format of the date string (e.g., 'yyyy-MM-dd HH:mm:ss'). Defaults to ISO_LOCAL_DATE_TIME.")
     private String format = "yyyy-MM-dd HH:mm:ss";
 
     @Option(names = "-m", description = "Change the modification time.", defaultValue = "true")

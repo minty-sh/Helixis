@@ -1,8 +1,5 @@
 package sh.minty.helixis.commands;
 
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,11 +9,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
-record GenerationParams(
-    int length, int numUppercase, int numLowercase, int numDigits, int numSpecial, String specialChars,
-    char separator, int separatorFrequency
-) {}
+record GenerationParams(int length, int numUppercase, int numLowercase, int numDigits, int numSpecial,
+        String specialChars, char separator, int separatorFrequency) {
+}
 
 @Command(name = "password", mixinStandardHelpOptions = true, description = "Generate X number of random passwords.")
 public class PasswordCommand implements Callable<Integer> {
@@ -29,28 +27,35 @@ public class PasswordCommand implements Callable<Integer> {
     @Option(names = {"-f", "--file"}, description = "write passwords to filename")
     private String filename;
 
-    @Option(names = {"-l", "--length"}, description = "Total length of the password (default: 18). This length excludes separators.")
+    @Option(names = {"-l",
+            "--length"}, description = "Total length of the password (default: 18). This length excludes separators.")
     private int length = 18;
 
-    @Option(names = {"-u", "--uppercase"}, description = "Number of uppercase letters (default: 1). If not specified, a random number of uppercase letters will be used to meet the total length requirement.")
+    @Option(names = {"-u",
+            "--uppercase"}, description = "Number of uppercase letters (default: 1). If not specified, a random number of uppercase letters will be used to meet the total length requirement.")
     private int numUppercase = 1;
 
-    @Option(names = {"-c", "--lowercase"}, description = "Number of lowercase letters (default: calculated). If not specified, a random number of lowercase letters will be used to meet the total length requirement.")
+    @Option(names = {"-c",
+            "--lowercase"}, description = "Number of lowercase letters (default: calculated). If not specified, a random number of lowercase letters will be used to meet the total length requirement.")
     private int numLowercase = -1; // -1 indicates calculated based on total length and other character types
 
-    @Option(names = {"-d", "--digits"}, description = "Number of digits (default: 1). If not specified, a random number of digits will be used to meet the total length requirement.")
+    @Option(names = {"-d",
+            "--digits"}, description = "Number of digits (default: 1). If not specified, a random number of digits will be used to meet the total length requirement.")
     private int numDigits = 1;
 
-    @Option(names = {"-s", "--special"}, description = "Number of special characters (default: 0). If not specified, a random number of special characters will be used to meet the total length requirement.")
+    @Option(names = {"-s",
+            "--special"}, description = "Number of special characters (default: 0). If not specified, a random number of special characters will be used to meet the total length requirement.")
     private int numSpecial = 0;
 
-    @Option(names = {"--special-chars"}, description = "Allowed special characters (default: !@#$%^&*()-_=+[{]}\\|;:'\",<.>/?).")
+    @Option(names = {
+            "--special-chars"}, description = "Allowed special characters (default: !@#$%^&*()-_=+[{]}\\|;:'\",<.>/?).")
     private String specialChars = "!@#$%^&*()-_=+[{]}\\|;:'\",<.>/?";
 
     @Option(names = {"--separator"}, description = "Separator character (default: -).")
     private char separator = '-';
 
-    @Option(names = {"--separator-frequency"}, description = "Frequency of separator (e.g., 6 for XXXXXX-XXXXXX-XXXXXX) (default: 6). Set to 0 for no separators.")
+    @Option(names = {
+            "--separator-frequency"}, description = "Frequency of separator (e.g., 6 for XXXXXX-XXXXXX-XXXXXX) (default: 6). Set to 0 for no separators.")
     private int separatorFrequency = 6;
 
     @Override
@@ -64,7 +69,8 @@ public class PasswordCommand implements Callable<Integer> {
         if (numLowercase == -1) {
             numLowercase = length - numUppercase - numDigits - numSpecial;
             if (numLowercase < 0) {
-                System.err.println("Error: Total length is less than the sum of required uppercase, digits, and special characters.");
+                System.err.println(
+                        "Error: Total length is less than the sum of required uppercase, digits, and special characters.");
                 return 1;
             }
         }
@@ -79,10 +85,8 @@ public class PasswordCommand implements Callable<Integer> {
             return 1;
         }
 
-        var params = new GenerationParams(
-            length, numUppercase, numLowercase, numDigits, numSpecial,
-            specialChars, separator, separatorFrequency
-        );
+        var params = new GenerationParams(length, numUppercase, numLowercase, numDigits, numSpecial, specialChars,
+                separator, separatorFrequency);
 
         List<String> passwords = new ArrayList<>();
         for (int i = 0; i < numPasswords; i++) {
@@ -146,7 +150,8 @@ public class PasswordCommand implements Callable<Integer> {
         var passwordBuilder = new StringBuilder();
         for (int i = 0; i < passwordChars.size(); i++) {
             passwordBuilder.append(passwordChars.get(i));
-            if (params.separatorFrequency() > 0 && (i + 1) % params.separatorFrequency() == 0 && (i + 1) < params.length()) {
+            if (params.separatorFrequency() > 0 && (i + 1) % params.separatorFrequency() == 0
+                    && (i + 1) < params.length()) {
                 passwordBuilder.append(params.separator());
             }
         }
